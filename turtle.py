@@ -1,45 +1,31 @@
 
 import pandas as pd
+import matplotlib.pyplot as plt
 
-files = [
-    "state_metrics_2025.csv",
-    "state_metrics_2024.csv",
-    "state_metrics_2023.csv",
-    "state_metrics_2022.csv",
-    "state_metrics_2021.csv",
-    "state_metrics_2020.csv",
-    "state_metrics_2019.csv",
-    "state_metrics_2018.csv",
-    "state_metrics_2017.csv",
-    "state_metrics_2016.csv",
-    "state_metrics_2015.csv",
-    "state_metrics_2014.csv"
-]
+# Read the scaled dataset
+D4 = pd.read_csv("scaled_state_metrics_2025.csv")
 
-def scale_to_0_plus1(x):
-    return (x - x.min()) / (x.max() - x.min())
+# Four scaled indicators
+x = D4["Fs_scaled"]
+y = D4["Es_scaled"]
+z = D4["Gs_scaled"]
+color = D4["Ps_scaled"]
 
-for filename in files:
-    D4 = pd.read_csv(filename)
+# Create the 3D plot
+fig = plt.figure()
+ax = fig.add_subplot(111, projection="3d")
 
-    D4["Fs_scaled"] = scale_to_0_plus1(D4["Fs"])
-    D4["Es_scaled"] = scale_to_0_plus1(D4["Es"])
-    D4["Gs_scaled"] = scale_to_0_plus1(D4["Gs"])
-    D4["Ps_scaled"] = scale_to_0_plus1(D4["Ps"])
+points = ax.scatter(x, y, z, c=color)
 
-    D4_scaled = D4[
-        [
-            "State",
-            "Code",
-            "Fs_scaled",
-            "Es_scaled",
-            "Gs_scaled",
-            "Ps_scaled"
-        ]
-    ]
+# Label the axes
+ax.set_xlabel("Flex-Fuel Vehicles (Fs)")
+ax.set_ylabel("E85 Stations (Es)")
+ax.set_zlabel("Gasoline Consumption (Gs)")
 
-    new_filename = "scaled_" + filename
-    D4_scaled.to_csv(new_filename, index=False)
+# Color represents gasoline price
+colorbar = fig.colorbar(points, ax=ax, pad=0.1)
+colorbar.set_label("Gasoline Price (Ps)")
 
-    print("Saved", new_filename)
-    #comment
+ax.set_title("4D Point Cloud of E85 Indicators")
+
+plt.show()
